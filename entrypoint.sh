@@ -66,7 +66,7 @@ if [[ -z "${INPUT_COMMIT_MESSAGE}" ]]; then
 fi
 
 # Convert delete_history variable to lowercase and validate it
-INPUT_DELETE_HISTORY=$(echo ${INPUT_DELETE_HISTORY,,})
+INPUT_DELETE_HISTORY=$(echo "${INPUT_DELETE_HISTORY}" | tr "[:upper:]" "[:lower:]")
 echo "${INPUT_DELETE_HISTORY}"
 if [[ "${INPUT_DELETE_HISTORY}" != true && "${INPUT_DELETE_HISTORY}" != false ]]; then
     echo "Incorrect value passed for 'delete_history'"
