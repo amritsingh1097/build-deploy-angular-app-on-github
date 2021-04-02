@@ -50,8 +50,8 @@ runs:
     - ${{ inputs.target_branch }}
     - ${{ inputs.user_email }}
     - ${{ inputs.user_name }}
-    - ${{ inputs.commit_message }}
     - ${{ inputs.delete_history }}
+    - ${{ inputs.commit_message }}
     - ${{ inputs.readme }}
 
 # Icon to show on GitHub Marketplace
