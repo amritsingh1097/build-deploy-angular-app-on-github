@@ -32,22 +32,22 @@ set -u
 echo "Validating parameters..."
 
 # Mandatory parameter check - Start
-if [[ -z "$INPUT_SOURCE_BRANCH" ]]; then
+if [[ -z "${INPUT_SOURCE_BRANCH}" ]]; then
     echo "Source branch must be specified"
     return -1
 fi
 
-if [[ -z "$INPUT_TARGET_REPO" ]]; then
+if [[ -z "${INPUT_TARGET_REPO}" ]]; then
     echo "Target repo must be specified"
     return -1
 fi
 
-if [[ -z "$INPUT_USER_EMAIL" ]]; then
+if [[ -z "${INPUT_USER_EMAIL}" ]]; then
     echo "Email must be specified"
     return -1
 fi
 
-if [[ -z "$INPUT_USER_NAME" ]]; then
+if [[ -z "${INPUT_USER_NAME}" ]]; then
     echo "Username must be specified"
     return -1
 fi
@@ -55,19 +55,20 @@ fi
 
 
 # Assign values to optional parameters - Start
-if [[ -z "$INPUT_TARGET_BRANCH" ]]; then
+if [[ -z "${INPUT_TARGET_BRANCH}" ]]; then
     echo "No value specified for 'target_branch'. Taking default branch - 'main'."
     INPUT_TARGET_BRANCH="main"
 fi
 
-if [[ -z "$INPUT_COMMIT_MESSAGE" ]]; then
+if [[ -z "${INPUT_COMMIT_MESSAGE}" ]]; then
     echo "No commit message specified. Taking default commit message."
-    INPUT_COMMIT_MESSAGE="Application deployed by user $INPUT_USER_NAME from https://github.com/${GITHUB_REPOSITORY}.git using the commit ${GITHUB_SHA}"
+    INPUT_COMMIT_MESSAGE="Application deployed by user ${INPUT_USER_NAME} from https://github.com/${GITHUB_REPOSITORY}.git using the commit ${GITHUB_SHA}"
 fi
 
 # Convert delete_history variable to lowercase and validate it
 INPUT_DELETE_HISTORY=$(echo ${INPUT_DELETE_HISTORY,,})
-if [[ "$INPUT_DELETE_HISTORY" != true && "$INPUT_DELETE_HISTORY" != false ]]; then
+echo "${INPUT_DELETE_HISTORY}"
+if [[ "${INPUT_DELETE_HISTORY}" != true && "${INPUT_DELETE_HISTORY}" != false ]]; then
     echo "Incorrect value passed for 'delete_history'"
     return -1
 fi
@@ -107,21 +108,21 @@ echo "Starting build..."
 CLONE_REPO=$(mktemp -d)
 
 # Store the source repo path
-SOURCE_REPO="$CLONE_REPO/source"
+SOURCE_REPO="${CLONE_REPO}/source"
 
 # Create source repo inside CLONE_REPO
-cd "$CLONE_REPO"
-mkdir -p "$SOURCE_REPO"
+cd "${CLONE_REPO}"
+mkdir -p "${SOURCE_REPO}"
 
 # Clone the source github repo
-git clone --single-branch --branch "$INPUT_SOURCE_BRANCH" "https://x-access-token:${API_TOKEN_GITHUB}@github.com/${GITHUB_REPOSITORY}.git" "$SOURCE_REPO"
+git clone --single-branch --branch "${INPUT_SOURCE_BRANCH}" "https://x-access-token:${API_TOKEN_GITHUB}@github.com/${GITHUB_REPOSITORY}.git" "${SOURCE_REPO}"
 # Clone the source github repo
 
 
 # Build the Angular app - Start
-cd "$SOURCE_REPO"
+cd "${SOURCE_REPO}"
 npm install
-npm run build -- --output-path dist/
+npm run build -- --prod --output-path dist/
 # Build the Angular app - End
 
 echo "Build complete"
@@ -155,45 +156,45 @@ echo "Build complete"
 echo "Starting deployment..."
 
 # Store the target repo path
-TARGET_REPO="$CLONE_REPO/target"
-echo "$TARGET_REPO"
+TARGET_REPO="${CLONE_REPO}/target"
+echo "${TARGET_REPO}"
 
 # Create target repo inside CLONE_REPO
-cd "$CLONE_REPO"
-mkdir -p "$TARGET_REPO"
+cd "${CLONE_REPO}"
+mkdir -p "${TARGET_REPO}"
 
 # Clone the target github repo
-git clone --single-branch --branch "$INPUT_TARGET_BRANCH" "https://x-access-token:${API_TOKEN_GITHUB}@github.com/${INPUT_TARGET_REPO}.git" "$TARGET_REPO"
-cd "$TARGET_REPO"
+git clone --single-branch --branch "${INPUT_TARGET_BRANCH}" "https://x-access-token:${API_TOKEN_GITHUB}@github.com/${INPUT_TARGET_REPO}.git" "${TARGET_REPO}"
+cd "${TARGET_REPO}"
 
 
 # If $INPUT_DELETE_HISTORY is set to 'true' then reset the .git folder and initialize it again
-if [[ "$INPUT_DELETE_HISTORY" == "true" ]]; then
+if [[ "${INPUT_DELETE_HISTORY}" == "true" ]]; then
     echo "Deleting history..."
     rm -rf .git/
     git init
-    git config user.email "$INPUT_USER_EMAIL"
-    git config user.name "$INPUT_USER_NAME"
-    git branch -M "$INPUT_TARGET_BRANCH"
+    git config user.email "${INPUT_USER_EMAIL}"
+    git config user.name "${INPUT_USER_NAME}"
+    git branch -M "${INPUT_TARGET_BRANCH}"
     git remote add origin "https://x-access-token:${API_TOKEN_GITHUB}@github.com/${INPUT_TARGET_REPO}.git"
     echo "History deleted"
 fi
 
 
 # Copy the contents from SOURCE_REPO/dist to TARGET_REPO
-cp -r "$SOURCE_REPO/dist" "$TARGET_REPO/"
+cp -r "${SOURCE_REPO}/dist" "${TARGET_REPO}/"
 
 
 # Check if custom README.md is provided
-if [[ ! -z "$INPUT_README" ]]; then
-    cp "$SOURCE_REPO/$INPUT_README" "$TARGET_REPO/README.md"
+if [[ ! -z "${INPUT_README}" ]]; then
+    cp "${SOURCE_REPO}/${INPUT_README}" "${TARGET_REPO}/README.md"
 fi
 
 
 # Push the repo to github
 git add .
-git commit -m "$INPUT_COMMIT_MESSAGE"
-git push -u origin "$INPUT_TARGET_BRANCH"
+git commit -m "${INPUT_COMMIT_MESSAGE}"
+git push -u origin "${INPUT_TARGET_BRANCH}"
 
 echo "Deployment complete."
 
