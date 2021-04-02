@@ -1,6 +1,3 @@
-# TODO: readme file exists check
-# optional params validation in case empty string is passed
-
 #!/bin/sh
 
 # Exit if a command exits with non-zero status
@@ -12,6 +9,8 @@ set -x
 # Error if variable is unset when using
 set -u
 
+# TODO: readme file exists check
+# optional params validation in case empty string is passed
 
 
 # ****************************************************************************************************
