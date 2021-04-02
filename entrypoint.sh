@@ -115,8 +115,7 @@ cd "${CLONE_REPO}"
 mkdir -p "${SOURCE_REPO}"
 
 # Clone the source github repo
-git clone --single-branch --branch "${INPUT_SOURCE_BRANCH}" "https://x-access-token:${API_TOKEN_GITHUB}@github.com/${GITHUB_REPOSITORY}.git" "${SOURCE_REPO}"
-# Clone the source github repo
+git clone --single-branch --branch "${INPUT_SOURCE_BRANCH}" "https://github.com/${GITHUB_REPOSITORY}.git" "${SOURCE_REPO}"
 
 
 # Build the Angular app - Start
